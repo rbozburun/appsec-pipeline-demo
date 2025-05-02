@@ -33,8 +33,12 @@ pipeline {
                 script {
                     def banditReport = readJSON file: 'bandit-result.json'
                     def hasHighIssues = banditReport.results.any { it.issue_severity == 'HIGH' }
+                    def hasMediumIssues = banditReport.results.any { it.issue_severity == 'MEDIUM' }
                     if (hasHighIssues) {
                         error("Bandit: High level security vulnerability found!")
+                    }
+                    if (hasMediumIssues) {
+                        error("Bandit: Medium level security vulnerability found!")
                     }
                 }
             }
