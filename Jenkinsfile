@@ -22,7 +22,8 @@ pipeline {
             }
         }
 
-        stage('Static Application Security Testing (SAST) - Bandit') {
+        
+        /*stage('Static Application Security Testing (SAST) - Bandit') {
             steps {
                 sh '''
                 python3 -m venv venv
@@ -36,24 +37,24 @@ pipeline {
                     //def hasMediumIssues = banditReport.results.any { it.issue_severity == 'MEDIUM' }
                     if (hasHighIssues) {
                         error("Bandit: High level security vulnerability found!")
-                    }
-                    /*if (hasMediumIssues) {
+                    } 
+                    if (hasMediumIssues) {
                         error("Bandit: Medium level security vulnerability found!")
-                    }*/
+                    }
                 }
             }
-        }
+        } */
        
-        /*
+        
         stage('SCA Scan - OWASP Dependency Check') {
             steps {
                 sh '''
-                curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-                unzip dependency-check.zip -d dependency-check
-                ./dependency-check/bin/dependency-check.sh --project "AppSec Demo" --scan app/ --format "JSON" --out ./dependency-report
+                # curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+                # unzip dependency-check.zip -d .
+                ./dependency-check/bin/dependency-check.sh --project "AppSec Demo" --scan app/ --format "JSON" --out dependency-report.json
                 '''
                 script {
-                    def report = readJSON file: 'dependency-report/dependency-check-report.json'
+                    def report = readJSON file: './dependency-report.json'
                     def hasCritical = report.dependencies.any { dep ->
                         dep.vulnerabilities?.any { it.severity == 'Critical' || it.cvssScore >= 7.0 }
                     }
@@ -69,6 +70,7 @@ pipeline {
                 sh 'docker build -t ${IMAGE_NAME} .'
             }
         }
+        /*
 
         stage('Deploy with Docker Compose') {
             steps {
