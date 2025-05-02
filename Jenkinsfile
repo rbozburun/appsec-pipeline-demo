@@ -94,9 +94,9 @@ pipeline {
             script {
                 echo "Pipeline failed! The code won't be deployed."
                 sh 'docker-compose down || true' 
+                }
             }
         }
     }
+
 }
-
-
