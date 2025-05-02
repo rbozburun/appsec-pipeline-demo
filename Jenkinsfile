@@ -8,21 +8,27 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/rbozburun/appsec-pipeline-demo.git'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rbozburun/appsec-pipeline-demo']])
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r app/requirements.txt'
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install -r app/requirements.txt
+                '''
             }
         }
 
         stage('Static Application Security Testing (SAST) - Bandit') {
             steps {
                 sh '''
+                python3 -m venv venv
+                . venv/bin/activate
                 pip install bandit
-                bandit -r app/ -f json -o bandit-result.json || true
+                bandit -r app/ -f json -o bandit-result.json --exit-zero
                 '''
                 script {
                     def banditReport = readJSON file: 'bandit-result.json'
@@ -88,15 +94,6 @@ pipeline {
     }
     */
 
-    post {
-        // Will be executed if the pipeline fails at any stage
-        failure {
-            script {
-                echo "Pipeline failed! The code won't be deployed."
-                sh 'docker-compose down || true' 
-                }
-            }
-        }
     }
 
 }
