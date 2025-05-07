@@ -1,1 +1,2 @@
 Flask==0.12.3  # Known for security vulnerabilities
+requests==2.19.1  # Known for CVE-2018-18074
