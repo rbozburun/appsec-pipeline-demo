@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'KaliSlave131' }
+    agent { label 'KaliSlave136' }
 
     environment {
         IMAGE_NAME = 'appsec-demo'
@@ -22,8 +22,8 @@ pipeline {
             }
         }
 
-        
-        /*stage('Static Application Security Testing (SAST) - Bandit') {
+        /*
+        stage('Static Application Security Testing (SAST) - Bandit') {
             steps {
                 sh '''
                 python3 -m venv venv
@@ -32,25 +32,32 @@ pipeline {
                 bandit -r app/ -f json -o bandit-result.json --exit-zero
                 '''
                 script {
+                    echo "[+] SAST scan finished, analyzing results..."
                     def banditReport = readJSON file: 'bandit-result.json'
-                    def hasHighIssues = banditReport.results.any { it.issue_severity == 'HIGH' }
-                    //def hasMediumIssues = banditReport.results.any { it.issue_severity == 'MEDIUM' }
-                    if (hasHighIssues) {
-                        error("Bandit: High level security vulnerability found!")
+                    def totals = banditReport.metrics["_totals"]
+                    def highIssueCount = totals['SEVERITY.HIGH']
+                    def mediumIssueCount = totals['SEVERITY.MEDIUM']
+                    
+                    echo "[+] $totals"
+                    if (highIssueCount > 0) {
+                        error("[!] SAST: $highIssueCount high level issue(s) detected! Fix them before deployment.")
                     } 
-                    if (hasMediumIssues) {
-                        error("Bandit: Medium level security vulnerability found!")
+                    if (mediumIssueCount > 0) {
+                        error("[!] SAST: $mediumIssueCount medium level issue(s) detected! Fix them before deployment.")
                     }
+                    
+                    
                 }
             }
-        } */
-       
+        } 
+        */
+        
         
         stage('SCA Scan - OWASP Dependency Check') {
             steps {
                 sh '''
-                # curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-                # unzip dependency-check.zip -d .
+                 curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+                 unzip dependency-check.zip -d .
                 ./dependency-check/bin/dependency-check.sh --project "AppSec Demo" --scan app/ --format "JSON" --out dependency-report.json
                 '''
                 script {
@@ -63,22 +70,24 @@ pipeline {
                     }
                 }
             }
-        }
+        } 
 
+    
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t ${IMAGE_NAME} .'
             }
         }
-        /*
+        
 
         stage('Deploy with Docker Compose') {
             steps {
-                sh 'docker-compose down || true'
-                sh 'docker-compose up -d --build'
+                sh 'docker compose down || true'
+                sh 'docker compose up -d --build'
             }
         }
-
+        
+        /*
         stage('DAST Scan - OWASP ZAP') {
             steps {
                 script {
