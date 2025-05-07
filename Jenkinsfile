@@ -53,20 +53,30 @@ pipeline {
         */
         
         
-        stage('SCA Scan - OWASP Dependency Check') {
+        stage('SCA Scan - Safety') {
             steps {
                 sh '''
-                 curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-                 unzip dependency-check.zip -d .
-                ./dependency-check/bin/dependency-check.sh --project "AppSec Demo" --scan app/ --format "JSON" --out dependency-report.json
+                    # Create virtual environment
+                    python3 -m venv venv
+        
+                    # Activate venv and install safety
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install safety
+        
+                    # Run safety scan in JSON mode
+                    safety check -r app/requirements.txt --json  > safety-report.json
                 '''
                 script {
-                    def report = readJSON file: './dependency-report.json'
-                    def hasCritical = report.dependencies.any { dep ->
-                        dep.vulnerabilities?.any { it.severity == 'Critical' || it.cvssScore >= 7.0 }
+                    def report = readJSON file: 'safety-report.json'
+        
+                    def hasCritical = report.any { vuln ->
+                        def severity = (vuln.severity ?: 'low').toLowerCase()
+                        return severity == 'critical' || severity == 'high'
                     }
+        
                     if (hasCritical) {
-                        error("SCA: Critical security vulnerability found!")
+                        error("SCA: Critical or high severity vulnerabilities found by Safety!")
                     }
                 }
             }
