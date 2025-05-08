@@ -24,7 +24,7 @@ pipeline {
             }
         }
 
-        /* 
+        
         stage('Static Application Security Testing (SAST) - Bandit') {
             steps {
                 sh '''
@@ -50,11 +50,11 @@ pipeline {
                     }*/
                     
                     
-                //}
-            //}
-        //} 
+                }
+            }
+        } 
 
-        /*
+        
         stage('SCA Scan - Safety') {
             steps {
                 sh '''
@@ -95,9 +95,9 @@ pipeline {
                 }
             }
         } 
-        */
+        
 
-      /*
+      
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t ${IMAGE_NAME} .'
@@ -112,9 +112,9 @@ pipeline {
                 sh 'docker compose up -d --build'
             }
         } 
-        */
         
-       /* 
+        
+       
         stage('DAST Scan - OWASP ZAP') {
             steps {
                 script {
@@ -143,7 +143,7 @@ pipeline {
                     }
                 }
             }
-        } */
+        } 
         
         // Final stage to merge to prod if all previous checks pass
         stage('Merge to Prod') {
