@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'appsec-demo'
+        SCA_THRESHOLD = 3 // Breaks pipeline
+        // SCA_THRESHOLD = 4
     }
 
     stages {
@@ -81,8 +83,7 @@ pipeline {
                     def hasTooManyVulns = remediations.any { pkgName, pkgData ->
                         pkgData.requirements.any { version, data ->
                             def vulnCount = data.vulnerabilities_found ?: 0
-                             // return vulnCount > 3 //Breaks pipeline
-                             return vulnCount > 4
+                               return vulnCount > $SCA_THRESHOLD 
                         }
                     }
                     
