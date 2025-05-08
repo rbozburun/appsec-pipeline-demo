@@ -96,26 +96,15 @@ pipeline {
                 }
             }
         } 
-        
-
-      
-        stage('Build Docker Image') {
+    
+        stage('Build & Deploy the Project') {
             steps {
                 sh 'docker build -t ${IMAGE_NAME} .'
-            }
-        } 
-        
-        
-  
-        stage('Deploy with Docker Compose') {
-            steps {
                 sh 'docker compose down || true'
                 sh 'docker compose up -d --build'
             }
         } 
-        
-        
-       
+
         stage('DAST Scan - OWASP ZAP') {
             steps {
                 script {
