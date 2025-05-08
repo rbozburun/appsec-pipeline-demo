@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = 'appsec-demo'
         //SCA_THRESHOLD = 3 // Breaks pipeline
         SCA_THRESHOLD = 4
+        DOCKER_NETWORK = "helloworld_appsec_network" // <folder>_<defined-in-compose-yml>
     }
 
     stages {
@@ -121,7 +122,7 @@ pipeline {
                     sh '''
                     sudo chmod -R 777 $(pwd)
                     docker run --rm \
-                      --network appsec-pipeline-demo_appsec_network \
+                      --network ${DOCKER_NETWORK}  \
                       -v $(pwd):/zap/wrk/:rw \
                       -t zaproxy/zap-stable zap-baseline.py \
                       -t http://web:5000 \
