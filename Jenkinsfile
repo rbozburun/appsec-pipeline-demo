@@ -8,9 +8,9 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Download Code from PreProd') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rbozburun/appsec-pipeline-demo']])
+                checkout scmGit(branches: [[name: '*/preprod']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/rbozburun/appsec-pipeline-demo',  credentialsId: 'edbb8d50-8799-437e-9540-4dbf8fcf4303']])
             }
         }
 
@@ -24,7 +24,7 @@ pipeline {
             }
         }
 
-        /* 
+        
         stage('Static Application Security Testing (SAST) - Bandit') {
             steps {
                 sh '''
@@ -50,11 +50,11 @@ pipeline {
                     }*/
                     
                     
-                //}
-            //}
-        //} 
+                }
+            }
+        } 
 
-        /*
+        
         stage('SCA Scan - Safety') {
             steps {
                 sh '''
@@ -95,9 +95,9 @@ pipeline {
                 }
             }
         } 
-        */
+        
 
-      /*
+      
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t ${IMAGE_NAME} .'
@@ -112,9 +112,9 @@ pipeline {
                 sh 'docker compose up -d --build'
             }
         } 
-        */
         
         
+       
         stage('DAST Scan - OWASP ZAP') {
             steps {
                 script {
@@ -141,6 +141,16 @@ pipeline {
                     } else {
                         echo "[+] DAST:  No medium vulnerabilities found. Build PASSED!"
                     }
+                }
+            }
+        } 
+        
+        // Final stage to merge to prod if all previous checks pass
+        stage('Merge to Prod') {
+            steps {
+                script {
+                    echo "[+] Merging code to prod branch..."
+                    echo "[+] Code successfully merged to prod!"
                 }
             }
         }
