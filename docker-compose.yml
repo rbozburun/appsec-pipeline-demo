@@ -5,3 +5,11 @@ services:
     build: .
     ports:
       - "5000:5000"
+    networks:
+      - appsec_network
+
+networks:
+  appsec_network:
+    driver: bridge
+
+
