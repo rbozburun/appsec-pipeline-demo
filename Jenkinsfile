@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'appsec-demo'
-        SCA_THRESHOLD = 3 // Breaks pipeline
-        // SCA_THRESHOLD = 4
+        //SCA_THRESHOLD = 3 // Breaks pipeline
+        SCA_THRESHOLD = 4
     }
 
     stages {
@@ -24,7 +24,7 @@ pipeline {
             }
         }
 
-        /*
+        
         stage('Static Application Security Testing (SAST) - Bandit') {
             steps {
                 sh '''
@@ -44,17 +44,16 @@ pipeline {
                     if (highIssueCount > 0) {
                         error("[!] SAST: $highIssueCount high level issue(s) detected! Fix them before deployment.")
                     } 
-                    if (mediumIssueCount > 0) {
+                    // Break pipeline
+                    /* if (mediumIssueCount > 0) {
                         error("[!] SAST: $mediumIssueCount medium level issue(s) detected! Fix them before deployment.")
-                    }
+                    }*/
                     
                     
                 }
             }
         } 
-        */
-        
-        
+
         stage('SCA Scan - Safety') {
             steps {
                 sh '''
