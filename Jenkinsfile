@@ -83,12 +83,12 @@ pipeline {
                     def hasTooManyVulns = remediations.any { pkgName, pkgData ->
                         pkgData.requirements.any { version, data ->
                             def vulnCount = data.vulnerabilities_found ?: 0
-                               return vulnCount > $SCA_THRESHOLD 
+                               return vulnCount > env.SCA_THRESHOLD.toInteger()
                         }
                     }
                     
                     if (hasTooManyVulns) {
-                        error("[!] SCA: One or more packages have more than 5 vulnerabilities. Failing the build.")
+                        error("[!] SCA: One or more packages have more than $SCA_THRESHOLD vulnerabilities. Failing the build.")
                     } else {
                         echo "[+] All packages passed the vulnerability threshold check."
                     }
